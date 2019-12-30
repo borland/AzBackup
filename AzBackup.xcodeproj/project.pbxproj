@@ -8,6 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		D336D9D423B982AD00E3CFD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D336D9D323B982AD00E3CFD2 /* main.swift */; };
+		D336D9FD23B98BD500E3CFD2 /* AzureCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D336D9F923B98BBA00E3CFD2 /* AzureCore.framework */; };
+		D336D9FE23B98BD500E3CFD2 /* AzureCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D336D9F923B98BBA00E3CFD2 /* AzureCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D336D9FF23B98BD600E3CFD2 /* AzureStorage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D336D9FB23B98BC200E3CFD2 /* AzureStorage.framework */; };
+		D336DA0023B98BD600E3CFD2 /* AzureStorage.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D336D9FB23B98BC200E3CFD2 /* AzureStorage.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D336DA0523B98BF000E3CFD2 /* KeychainAccess.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D336DA0123B98BEB00E3CFD2 /* KeychainAccess.framework */; };
+		D336DA0623B98BF000E3CFD2 /* KeychainAccess.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D336DA0123B98BEB00E3CFD2 /* KeychainAccess.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D336DA0723B98BF100E3CFD2 /* Willow.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D336DA0223B98BEB00E3CFD2 /* Willow.framework */; };
+		D336DA0823B98BF100E3CFD2 /* Willow.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D336DA0223B98BEB00E3CFD2 /* Willow.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -20,11 +28,29 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		D336D9E123B984B600E3CFD2 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D336DA0623B98BF000E3CFD2 /* KeychainAccess.framework in Embed Frameworks */,
+				D336DA0023B98BD600E3CFD2 /* AzureStorage.framework in Embed Frameworks */,
+				D336DA0823B98BF100E3CFD2 /* Willow.framework in Embed Frameworks */,
+				D336D9FE23B98BD500E3CFD2 /* AzureCore.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D336D9D023B982AD00E3CFD2 /* AzBackup */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AzBackup; sourceTree = BUILT_PRODUCTS_DIR; };
 		D336D9D323B982AD00E3CFD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		D336D9F923B98BBA00E3CFD2 /* AzureCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AzureCore.framework; path = external/AzureCore.framework; sourceTree = "<group>"; };
+		D336D9FB23B98BC200E3CFD2 /* AzureStorage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AzureStorage.framework; path = external/AzureStorage.framework; sourceTree = "<group>"; };
+		D336DA0123B98BEB00E3CFD2 /* KeychainAccess.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = KeychainAccess.framework; path = external/KeychainAccess.framework; sourceTree = "<group>"; };
+		D336DA0223B98BEB00E3CFD2 /* Willow.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Willow.framework; path = external/Willow.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -32,6 +58,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D336D9FF23B98BD600E3CFD2 /* AzureStorage.framework in Frameworks */,
+				D336DA0523B98BF000E3CFD2 /* KeychainAccess.framework in Frameworks */,
+				D336DA0723B98BF100E3CFD2 /* Willow.framework in Frameworks */,
+				D336D9FD23B98BD500E3CFD2 /* AzureCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,6 +73,10 @@
 			children = (
 				D336D9D223B982AD00E3CFD2 /* AzBackup */,
 				D336D9D123B982AD00E3CFD2 /* Products */,
+				D336DA0123B98BEB00E3CFD2 /* KeychainAccess.framework */,
+				D336DA0223B98BEB00E3CFD2 /* Willow.framework */,
+				D336D9FB23B98BC200E3CFD2 /* AzureStorage.framework */,
+				D336D9F923B98BBA00E3CFD2 /* AzureCore.framework */,
 			);
 			sourceTree = "<group>";
 		};
@@ -72,6 +106,7 @@
 				D336D9CC23B982AD00E3CFD2 /* Sources */,
 				D336D9CD23B982AD00E3CFD2 /* Frameworks */,
 				D336D9CE23B982AD00E3CFD2 /* CopyFiles */,
+				D336D9E123B984B600E3CFD2 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -243,10 +278,16 @@
 		D336D9D823B982AD00E3CFD2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZWD8A654M8;
 				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/external",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -254,10 +295,16 @@
 		D336D9D923B982AD00E3CFD2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = ZWD8A654M8;
 				ENABLE_HARDENED_RUNTIME = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/external",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
