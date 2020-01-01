@@ -8,14 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D336D9D423B982AD00E3CFD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D336D9D323B982AD00E3CFD2 /* main.swift */; };
-		D336D9FD23B98BD500E3CFD2 /* AzureCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D336D9F923B98BBA00E3CFD2 /* AzureCore.framework */; };
-		D336D9FE23B98BD500E3CFD2 /* AzureCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D336D9F923B98BBA00E3CFD2 /* AzureCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		D336D9FF23B98BD600E3CFD2 /* AzureStorage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D336D9FB23B98BC200E3CFD2 /* AzureStorage.framework */; };
-		D336DA0023B98BD600E3CFD2 /* AzureStorage.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D336D9FB23B98BC200E3CFD2 /* AzureStorage.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		D336DA0523B98BF000E3CFD2 /* KeychainAccess.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D336DA0123B98BEB00E3CFD2 /* KeychainAccess.framework */; };
-		D336DA0623B98BF000E3CFD2 /* KeychainAccess.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D336DA0123B98BEB00E3CFD2 /* KeychainAccess.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		D336DA0723B98BF100E3CFD2 /* Willow.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D336DA0223B98BEB00E3CFD2 /* Willow.framework */; };
-		D336DA0823B98BF100E3CFD2 /* Willow.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D336DA0223B98BEB00E3CFD2 /* Willow.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D3E9339123BD67C00083534D /* libAZSClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3E9339023BD67C00083534D /* libAZSClient.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -28,29 +21,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
-		D336D9E123B984B600E3CFD2 /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				D336DA0623B98BF000E3CFD2 /* KeychainAccess.framework in Embed Frameworks */,
-				D336DA0023B98BD600E3CFD2 /* AzureStorage.framework in Embed Frameworks */,
-				D336DA0823B98BF100E3CFD2 /* Willow.framework in Embed Frameworks */,
-				D336D9FE23B98BD500E3CFD2 /* AzureCore.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D336D9D023B982AD00E3CFD2 /* AzBackup */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AzBackup; sourceTree = BUILT_PRODUCTS_DIR; };
 		D336D9D323B982AD00E3CFD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		D336D9F923B98BBA00E3CFD2 /* AzureCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AzureCore.framework; path = external/AzureCore.framework; sourceTree = "<group>"; };
-		D336D9FB23B98BC200E3CFD2 /* AzureStorage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AzureStorage.framework; path = external/AzureStorage.framework; sourceTree = "<group>"; };
-		D336DA0123B98BEB00E3CFD2 /* KeychainAccess.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = KeychainAccess.framework; path = external/KeychainAccess.framework; sourceTree = "<group>"; };
-		D336DA0223B98BEB00E3CFD2 /* Willow.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Willow.framework; path = external/Willow.framework; sourceTree = "<group>"; };
+		D34643F823BD658600EA3CCC /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
+		D3E9339023BD67C00083534D /* libAZSClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAZSClient.a; path = external/AZSClient.framework/libAZSClient.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,10 +35,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D336D9FF23B98BD600E3CFD2 /* AzureStorage.framework in Frameworks */,
-				D336DA0523B98BF000E3CFD2 /* KeychainAccess.framework in Frameworks */,
-				D336DA0723B98BF100E3CFD2 /* Willow.framework in Frameworks */,
-				D336D9FD23B98BD500E3CFD2 /* AzureCore.framework in Frameworks */,
+				D3E9339123BD67C00083534D /* libAZSClient.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -73,10 +47,7 @@
 			children = (
 				D336D9D223B982AD00E3CFD2 /* AzBackup */,
 				D336D9D123B982AD00E3CFD2 /* Products */,
-				D336DA0123B98BEB00E3CFD2 /* KeychainAccess.framework */,
-				D336DA0223B98BEB00E3CFD2 /* Willow.framework */,
-				D336D9FB23B98BC200E3CFD2 /* AzureStorage.framework */,
-				D336D9F923B98BBA00E3CFD2 /* AzureCore.framework */,
+				D34643F923BD668E00EA3CCC /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -92,8 +63,17 @@
 			isa = PBXGroup;
 			children = (
 				D336D9D323B982AD00E3CFD2 /* main.swift */,
+				D34643F823BD658600EA3CCC /* Bridging-Header.h */,
 			);
 			path = AzBackup;
+			sourceTree = "<group>";
+		};
+		D34643F923BD668E00EA3CCC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D3E9339023BD67C00083534D /* libAZSClient.a */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -106,7 +86,6 @@
 				D336D9CC23B982AD00E3CFD2 /* Sources */,
 				D336D9CD23B982AD00E3CFD2 /* Frameworks */,
 				D336D9CE23B982AD00E3CFD2 /* CopyFiles */,
-				D336D9E123B984B600E3CFD2 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -286,8 +265,14 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/external",
 				);
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/external/AZSClient.framework/include\"";
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SRCROOT)/external/AZSClient\"",
+					"$(PROJECT_DIR)/external/AZSClient.framework",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "AzBackup/Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -303,8 +288,14 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/external",
 				);
+				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/external/AZSClient.framework/include\"";
+				LIBRARY_SEARCH_PATHS = (
+					"\"$(SRCROOT)/external/AZSClient\"",
+					"$(PROJECT_DIR)/external/AZSClient.framework",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "AzBackup/Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
