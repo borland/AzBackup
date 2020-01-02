@@ -10,6 +10,7 @@
 		D336D9D423B982AD00E3CFD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D336D9D323B982AD00E3CFD2 /* main.swift */; };
 		D3E9339123BD67C00083534D /* libAZSClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3E9339023BD67C00083534D /* libAZSClient.a */; };
 		D3E9339523BD6E570083534D /* libxml2.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D3E9339423BD6E570083534D /* libxml2.2.tbd */; };
+		D3E9339723BD74840083534D /* CombineHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E9339623BD74840083534D /* CombineHelpers.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,7 @@
 		D3E9339023BD67C00083534D /* libAZSClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAZSClient.a; path = external/AZSClient.framework/libAZSClient.a; sourceTree = "<group>"; };
 		D3E9339223BD6E360083534D /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		D3E9339423BD6E570083534D /* libxml2.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.2.tbd; path = usr/lib/libxml2.2.tbd; sourceTree = SDKROOT; };
+		D3E9339623BD74840083534D /* CombineHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineHelpers.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,6 +70,7 @@
 			children = (
 				D336D9D323B982AD00E3CFD2 /* main.swift */,
 				D34643F823BD658600EA3CCC /* Bridging-Header.h */,
+				D3E9339623BD74840083534D /* CombineHelpers.swift */,
 			);
 			path = AzBackup;
 			sourceTree = "<group>";
@@ -141,6 +144,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D336D9D423B982AD00E3CFD2 /* main.swift in Sources */,
+				D3E9339723BD74840083534D /* CombineHelpers.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

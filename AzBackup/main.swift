@@ -38,36 +38,52 @@ struct BackupError : Error {
     }
 }
 
+var cancellable: Cancellable?
+
 do {
     let account = try AZSCloudStorageAccount(fromConnectionString: azureConnectionString)
     let blobClient: AZSCloudBlobClient = account.getBlobClient()
-    
-//    let cts = AZSContinuationToken()
-//    blobClient.listContainersSegmented(with: cts) { (error, segment) in
-//        if let err = error {
-//            print("failed to list containers \(err)")
-//            exit(990)
-//        }
-//        guard let seg = segment else { return }
-//        for x in seg.results {
-//            guard let container = x as? AZSCloudBlobContainer else { continue }
-//            print(container.name)
-//        }
-//        exit(0)
-//    }
-//
-    guard let container = blobClient.containerReference(fromName: "my-cool-container") else {
-        throw BackupError(message: "can't get container reference")
-    }
 
-    container.createContainerIfNotExists { (error, exists) in
-        if let err = error {
-            print("failed to create container \(err)")
-            exit(989)
+    // we can't cancel any of this
+    cancellable = blobClient
+        .listContainers()
+        .flatMap { (containers:[AZSCloudBlobContainer]) -> AnyPublisher<AZSCloudBlobContainer, Error> in
+
+            for container in containers {
+                print(container.name!)
+            }
+
+            guard let container = blobClient.containerReference(fromName: "my-cool-container") else {
+                return Fail(error: BackupError(message: "can't get container reference")).eraseToAnyPublisher()
+            }
+            return container
+                .createIfNotExists()
+                .map { _ in container }
+                .eraseToAnyPublisher()
+    }.flatMap { (container) -> Future<Void, Error> in
+        print("created container")
+        
+        
+        
+        let dir = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0]
+        let fooTxt = dir.appendingPathComponent("foo.txt")
+        
+        //now upload a file
+        let blob = container.blockBlobReference(fromName: "foo.txt")!
+        return blob.upload(fileUrl: fooTxt)
+    }.sink(receiveCompletion: { completion in
+        if case .failure(let err) = completion {
+            print("Failed with error \(err)")
+            exit(999)
         }
-        print("container exists")
+
+        print("all done")
         exit(0)
-    }
+    }, receiveValue: { (value: Void) in
+        print("got value \(value)")
+    })
+
+
     
 } catch let err {
     print("Can't connect to azure, error \(err)")
