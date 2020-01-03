@@ -44,7 +44,7 @@ extension AZSCloudBlobClient {
 }
 
 extension AZSCloudBlobContainer {
-    func listBlobs() -> Deferred<PassthroughSubject<[AZSCloudBlockBlob], Error>> {
+    func listBlobs(batchSize: Int = 1000) -> Deferred<PassthroughSubject<[AZSCloudBlockBlob], Error>> {
         return Deferred {
             let subject = PassthroughSubject<[AZSCloudBlockBlob], Error>()
             
@@ -55,12 +55,22 @@ extension AZSCloudBlobContainer {
                 }
                 guard let seg = segment else { fatalError("listContainersSegmented didn't provide either err nor segment") }
                 
-                if let results = seg.results as? [AZSCloudBlockBlob] { // we have some results
+                // because we asked for flat, we just get all the blobs, no directories
+                if let results = seg.blobs as? [AZSCloudBlockBlob] { // we have some results
                     subject.send(results)
                     
                     // fetch the next segment if there is one
                     if let nextCt = seg.continuationToken {
-                        self.listB(with: nextCt, completionHandler: callback)
+                        self.listBlobsSegmented(
+                        with: nextCt,
+                        prefix: nil,
+                        useFlatBlobListing: true,
+                        blobListingDetails: [],
+                        maxResults: batchSize,
+                        accessCondition: nil,
+                        requestOptions: nil,
+                        operationContext: nil,
+                        completionHandler: callback)
                     } else {
                         subject.send(completion: .finished)
                     }
@@ -73,11 +83,12 @@ extension AZSCloudBlobContainer {
                 with: AZSContinuationToken(),
                 prefix: nil,
                 useFlatBlobListing: true,
-                blobListingDetails: nil,
-                maxResults: 1000,
-                accessCondition: <#T##AZSAccessCondition!#>, requestOptions: <#T##AZSBlobRequestOptions!#>, operationContext: <#T##AZSOperationContext!#>, completionHandler: <#T##((Error?, AZSBlobResultSegment?) -> Void)!##((Error?, AZSBlobResultSegment?) -> Void)!##(Error?, AZSBlobResultSegment?) -> Void#>)
-            
-            self.listContainersSegmented(with: AZSContinuationToken(), completionHandler: callback)
+                blobListingDetails: [],
+                maxResults: batchSize,
+                accessCondition: nil,
+                requestOptions: nil,
+                operationContext: nil,
+                completionHandler: callback)
             
             return subject
         }

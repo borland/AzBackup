@@ -60,28 +60,42 @@ do {
                 .createIfNotExists()
                 .map { _ in container }
                 .eraseToAnyPublisher()
-    }.flatMap { (container) -> Future<Void, Error> in
+    }.flatMap { (container) -> AnyPublisher<(container: AZSCloudBlobContainer, blobs: [AZSCloudBlockBlob]), Error> in
         print("created container")
         
+        return container.listBlobs()
+            .map { (blobs: [AZSCloudBlockBlob]) -> (container: AZSCloudBlobContainer,  blobs: [AZSCloudBlockBlob]) in
+                (container: container, blobs: blobs)
+        }.eraseToAnyPublisher()
         
+    }.flatMap { (tuple:(container: AZSCloudBlobContainer, blobs: [AZSCloudBlockBlob])) -> AnyPublisher<String, Error> in
+        let (container, blobs) = tuple
         
-        let dir = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0]
-        let fooTxt = dir.appendingPathComponent("foo.txt")
-        
-        //now upload a file
-        let blob = container.blockBlobReference(fromName: "foo.txt")!
-        return blob.upload(fileUrl: fooTxt)
-    }.sink(receiveCompletion: { completion in
-        if case .failure(let err) = completion {
-            print("Failed with error \(err)")
-            exit(999)
+        for blob in blobs {
+            print(blob.blobName!)
         }
-
-        print("all done")
-        exit(0)
-    }, receiveValue: { (value: Void) in
-        print("got value \(value)")
-    })
+        
+        return Just("done").setFailureType(to: Error.self).eraseToAnyPublisher()
+    }.sink(
+        receiveCompletion: { _ in }, receiveValue: { _ in })
+//
+//        let dir = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask)[0]
+//        let fooTxt = dir.appendingPathComponent("foo.txt")
+//
+//        //now upload a file
+//        let blob = container.blockBlobReference(fromName: "foo.txt")!
+//        return blob.upload(fileUrl: fooTxt)
+//    }.sink(receiveCompletion: { completion in
+//        if case .failure(let err) = completion {
+//            print("Failed with error \(err)")
+//            exit(999)
+//        }
+//
+//        print("all done")
+//        exit(0)
+//    }, receiveValue: { (value: Void) in
+//        print("got value \(value)")
+//    })
 
 
     
