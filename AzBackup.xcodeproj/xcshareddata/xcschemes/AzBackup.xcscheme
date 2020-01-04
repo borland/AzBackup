@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "/Users/orione/Dev/AzBackup/azure-connection-string"
+            argument = "/Users/orione/Dev/AzBackup/config.json"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>

@@ -97,13 +97,15 @@ extension AZSCloudBlobContainer {
 
 
 extension AZSCloudBlockBlob {
-    func upload(fileUrl: URL) -> Future<Void, Error> {
-        return Future<Void, Error> { resolve in
-            self.uploadFromFile(with: fileUrl) { (err) in
-                if let e = err {
-                    resolve(.failure(e))
-                } else {
-                    resolve(.success(()))
+    func upload(fileUrl: URL) -> Deferred<Future<Void, Error>> {
+        return Deferred {
+            Future<Void, Error> { resolve in
+                self.uploadFromFile(with: fileUrl) { (err) in
+                    if let e = err {
+                        resolve(.failure(e))
+                    } else {
+                        resolve(.success(()))
+                    }
                 }
             }
         }
@@ -111,13 +113,15 @@ extension AZSCloudBlockBlob {
 }
 
 extension AZSCloudBlobContainer {
-    func createIfNotExists() -> Future<Bool, Error> {
-        return Future<Bool, Error> { resolve in
-            self.createContainerIfNotExists { (err, value) in
-                if let e = err {
-                    resolve(.failure(e))
-                } else {
-                    resolve(.success(value))
+    func createIfNotExists() -> Deferred<Future<AZSCloudBlobContainer, Error>> {
+        return Deferred {
+            Future<AZSCloudBlobContainer, Error> { resolve in
+                self.createContainerIfNotExists { (err, value) in
+                    if let e = err {
+                        resolve(.failure(e))
+                    } else {
+                        resolve(.success(self))
+                    }
                 }
             }
         }

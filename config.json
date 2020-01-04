@@ -1,0 +1,21 @@
+{
+    "target": "Azure",
+    "connectionStringFile": "/Users/orione/Dev/AzBackup/azure-connection-string",
+    "blobContainer": "my-test-container",
+    "backup": [
+        {
+            "dir": "/Users/orione/Downloads/azure-storage-ios-0.2.6",
+            "include": ["*"],
+            "exclude": ["Lib/Azure Storage Client Library/BreakingChanges.txt"]
+        },
+        {
+            "enabled": false,
+            "dir": "/Users/orione/Documents",
+            "include": ["*"],
+            "exclude": [
+                "*.p8",
+                "*.pptx"
+            ]
+        }
+    ]
+}

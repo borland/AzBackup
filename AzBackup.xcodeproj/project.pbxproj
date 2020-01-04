@@ -11,6 +11,7 @@
 		D3E9339123BD67C00083534D /* libAZSClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3E9339023BD67C00083534D /* libAZSClient.a */; };
 		D3E9339523BD6E570083534D /* libxml2.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D3E9339423BD6E570083534D /* libxml2.2.tbd */; };
 		D3E9339723BD74840083534D /* CombineHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E9339623BD74840083534D /* CombineHelpers.swift */; };
+		D3E9339A23C00D7F0083534D /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E9339923C00D7F0083534D /* Config.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -33,6 +34,8 @@
 		D3E9339223BD6E360083534D /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		D3E9339423BD6E570083534D /* libxml2.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.2.tbd; path = usr/lib/libxml2.2.tbd; sourceTree = SDKROOT; };
 		D3E9339623BD74840083534D /* CombineHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineHelpers.swift; sourceTree = "<group>"; };
+		D3E9339823C00C260083534D /* config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = config.json; sourceTree = SOURCE_ROOT; };
+		D3E9339923C00D7F0083534D /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,9 +71,11 @@
 		D336D9D223B982AD00E3CFD2 /* AzBackup */ = {
 			isa = PBXGroup;
 			children = (
+				D3E9339823C00C260083534D /* config.json */,
 				D336D9D323B982AD00E3CFD2 /* main.swift */,
 				D34643F823BD658600EA3CCC /* Bridging-Header.h */,
 				D3E9339623BD74840083534D /* CombineHelpers.swift */,
+				D3E9339923C00D7F0083534D /* Config.swift */,
 			);
 			path = AzBackup;
 			sourceTree = "<group>";
@@ -145,6 +150,7 @@
 			files = (
 				D336D9D423B982AD00E3CFD2 /* main.swift in Sources */,
 				D3E9339723BD74840083534D /* CombineHelpers.swift in Sources */,
+				D3E9339A23C00D7F0083534D /* Config.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
