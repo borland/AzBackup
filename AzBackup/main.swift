@@ -63,11 +63,63 @@ struct FileOperation {
 
 let fsDispatchQueue = DispatchQueue(label: "fsQueue")
 
-var uploadQueue: [Deferred<Future<Void, Error>>] = []
+class UploadManager {
+    typealias QueuedTask = (task: AnyPublisher<Void, Error>, localFileUrl: URL)
+    
+    private let dispatchQueue = DispatchQueue(label: "uploadQueue")
 
-func queueUpload(_ task: Deferred<Future<Void, Error>>) {
-    uploadQueue.append(task)
+    private var uploadQueue: [QueuedTask] = []
+    private var isProcessing = false
+    private var currentTask: Cancellable?
+    
+    let results = PassthroughSubject<FileOperation, Never>()
+
+    func queueUpload(task: AnyPublisher<Void, Error>, localFileUrl: URL) {
+        dispatchQueue.async {
+            self.uploadQueue.append(QueuedTask(task: task, localFileUrl: localFileUrl))
+            if !self.isProcessing {
+                self.doProcessing()
+            }
+        }
+    }
+    
+    private func doProcessing() {
+        assert(!uploadQueue.isEmpty) // shouldn't happen
+        isProcessing = true
+        
+        let task = uploadQueue.remove(at: 0)
+        self.currentTask = task.task.sink(receiveCompletion: { (signal) in
+            self.currentTask = nil
+            
+            switch signal {
+            case .finished:
+                self.results.send(FileOperation(type: .created, file: task.localFileUrl))
+                
+                self.dispatchQueue.async {
+                    if self.uploadQueue.isEmpty {
+                        self.isProcessing = false // all done, stop now
+                        print("Queue empty")
+                    } else {
+                        self.doProcessing()
+                    }
+                }
+            case .failure(let err):
+                print("Upload failed for \(task.localFileUrl) - \(err)")
+                // carry on with the next one
+            }
+        }) { () in
+            // useless. Progress might go here?
+        }
+        
+    }
 }
+let uploadManager = UploadManager()
+let forever = uploadManager.results.sink(receiveCompletion: { (signal) in
+    
+}, receiveValue: { op in
+    print("\(op.type) \(op.file.relativePath)")
+})
+
 
 func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobContainer, blobs: [AZSCloudBlockBlob]) -> AnyPublisher<FileOperation, Error>
 {
@@ -100,11 +152,13 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
                                 subject.send(FileOperation(type: .alreadyUpToDate, file: fileURL))
                             } else {
                                 // this is probably a terrible way to do this, but it works
-                                let relativePath = fileURL.relativePath.replacingOccurrences(of: dir.relativePath, with: "")
+                                let relativePath = entry.target + fileURL.relativePath.replacingOccurrences(of: dir.relativePath, with: "")
                                 guard let blob = container.blockBlobReference(fromName: relativePath) else {
                                     throw BackupError(message: "Can't create blob reference from \(relativePath)")
                                 }
-                                queueUpload(blob.upload(fileUrl: fileURL))
+                                uploadManager.queueUpload(
+                                    task: blob.upload(fileUrl: fileURL).eraseToAnyPublisher(),
+                                    localFileUrl: fileURL)
                             }
                         }
                     } catch {

@@ -4,13 +4,16 @@
     "blobContainer": "my-test-container",
     "backup": [
         {
+            "enabled": false,
             "dir": "/Users/orione/Downloads/azure-storage-ios-0.2.6",
+            "target": "azure-storage-ios-0.2.6",
             "include": ["*"],
             "exclude": ["Lib/Azure Storage Client Library/BreakingChanges.txt"]
         },
         {
-            "enabled": false,
+            "enabled": true,
             "dir": "/Users/orione/Documents",
+            "target": "Documents",
             "include": ["*"],
             "exclude": [
                 "*.p8",

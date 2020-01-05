@@ -8,32 +8,17 @@
 
 import Foundation
 
-
-//{
-//    "target": "Azure",
-//    "connectionStringFile": "/Users/orione/Dev/AzBackup/azure-connection-string",
-//    "blobContainer": "my-test-container",
-//    "backup": [
-//        {
-//            "dir": "/Users/orione/Downloads/azure-storage-ios-0.2.6",
-//            "include": ["*"],
-//            "exclude": ["Lib/Azure Storage Client Library/BreakingChanges.txt"]
-//        },
-//        {
-//            "dir": "/Users/orione/Documents",
-//            "include": ["*"],
-//            "exclude": [
-//                "*.p8",
-//                "*.pptx"
-//            ]
-//        }
-//    ]
-//}
-
 struct ConfigRoot : Decodable {
+    /// Backup target. Valid values are "Azure"
     let target: String
+    
+    /// Path to file containing the azure connection string. Don't check that into source control!
     let connectionStringFile: String?
+    
+    /// Azure Blob container to store files in
     let blobContainer: String
+    
+    /// List of things to backup
     let backup: [ConfigBackupEntry]
     
     static func load(filePath: String) throws -> ConfigRoot {
@@ -44,8 +29,18 @@ struct ConfigRoot : Decodable {
 }
 
 struct ConfigBackupEntry : Decodable {
+    /// If true or nil, this entry will be processed. If false will be explicitly skipped
     let enabled: Bool?
+    
+    /// The local directory
     let dir: String
+    
+    /// The remote directory
+    let target: String
+    
+    /// File include patterns
     let include: [String]?
+    
+    /// File exclude patterns
     let exclude: [String]?
 }
