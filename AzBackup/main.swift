@@ -139,7 +139,7 @@ func isIncluded(path: String, includePredicates: [NSPredicate]?, excludePredicat
     return included && !excluded // exclude wins
 }
 
-func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobContainer, blobs: [AZSCloudBlockBlob]) -> AnyPublisher<FileOperation, Error>
+func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobContainer, blobs: [String:AZSCloudBlockBlob]) -> AnyPublisher<FileOperation, Error>
 {
     switch entry.enabled {
     case .some(false):
@@ -199,7 +199,7 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
                             let remotePath = entry.target + relativePath
                             
                             // let's see if it exists in azure
-                            let remoteMatch = blobs.first { blob in remotePath == blob.blobName! }
+                            let remoteMatch = blobs[remotePath]
                             
                             if let rm = remoteMatch, let lastModStr = rm.metadata[lastModificationDateKey] as? String {
                                 // need to compare strings because the raw contentModificationDate includes milliseconds which aren't roundtripped
@@ -244,18 +244,27 @@ do {
     cancellable = container
         .createIfNotExists()
         .eraseToAnyPublisher()
-        .flatMap { (container) -> AnyPublisher<(container: AZSCloudBlobContainer, blobs: [AZSCloudBlockBlob]), Error> in
+        .flatMap { (container) -> AnyPublisher<(container: AZSCloudBlobContainer, blobs: [String:AZSCloudBlockBlob]), Error> in
             // step 1: list all the files from azure and hold the info in a buffer
             // This is not really optimal as it takes ages and requires heaps of memory but meh, works well enough
             print("LISTING BLOBS")
+            var count = 0
+            var blobDict = [String:AZSCloudBlockBlob]()
             return container
                 .listBlobs()
-                .flatMap { Publishers.Sequence(sequence: $0) }
-                .collect()
+                .flatMap { blobs -> Publishers.Sequence<[AZSCloudBlockBlob], Error> in
+                    count += blobs.count
+                    print(count)
+                    return Publishers.Sequence(sequence: blobs)
+                }
+                .reduce(blobDict, { (dict, blob) -> [String:AZSCloudBlockBlob] in
+                    blobDict[blob.blobName!] = blob // don't keep making new copies of blobDict
+                    return blobDict
+                })
                 .map { blobs in (container: container, blobs: blobs) }
                 .eraseToAnyPublisher()
         }
-        .flatMap({ (container: AZSCloudBlobContainer, blobs: [AZSCloudBlockBlob]) -> AnyPublisher<FileOperation, Error> in
+        .flatMap({ (container: AZSCloudBlobContainer, blobs: [String:AZSCloudBlockBlob]) -> AnyPublisher<FileOperation, Error> in
             print("WALKING LOCAL FILESYSTEM")
             var tasks: [AnyPublisher<FileOperation, Error>] = .init()
             
@@ -265,7 +274,9 @@ do {
             return Publishers.Sequence(sequence: tasks).flatMap{ $0 }.eraseToAnyPublisher()
         })
         .sink(receiveCompletion: { signal in }, receiveValue: { fileOperation in
-            print("\(fileOperation.file.relativePath) -> \(String(describing: fileOperation.type))")
+            if fileOperation.type != .alreadyUpToDate { // just noise and slows things down
+                print("\(fileOperation.file.relativePath) -> \(String(describing: fileOperation.type))")
+            }
         })
     
     
