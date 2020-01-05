@@ -8,7 +8,7 @@
             "dir": "/Users/orione/Downloads/azure-storage-ios-0.2.6",
             "target": "azure-storage-ios-0.2.6",
             "include": ["*"],
-            "exclude": ["Lib/Azure Storage Client Library/BreakingChanges.txt"]
+            "exclude": ["/Lib/Azure Storage Client Library/BreakingChanges.txt"]
         },
         {
             "enabled": true,

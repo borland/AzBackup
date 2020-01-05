@@ -123,6 +123,22 @@ let forever = uploadManager.results.sink(receiveCompletion: { (signal) in
 let lastModificationDateKey = "lastModificationDate"
 let dateFormatter = ISO8601DateFormatter()
 
+func isIncluded(path: String, includePredicates: [NSPredicate]?, excludePredicates: [NSPredicate]?) -> Bool {
+    var included = false
+    if let ip = includePredicates {
+        included = ip.contains { pred in pred.evaluate(with: path) }
+    } else {
+        included = true
+    }
+    
+    var excluded = false
+    if let ep = excludePredicates {
+        excluded = ep.contains { pred in pred.evaluate(with: path) }
+    }
+    
+    return included && !excluded // exclude wins
+}
+
 func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobContainer, blobs: [AZSCloudBlockBlob]) -> AnyPublisher<FileOperation, Error>
 {
     switch entry.enabled {
@@ -142,6 +158,22 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
             fileOperation: fileOperation)
     }
     
+    // convert include patterns to NSPredicate. May not be the ideal most efficient way to do wildcard matching, but it's very easy :-)
+    let includePredicates: [NSPredicate]?
+    if let ip = entry.include {
+        includePredicates = ip.map{ NSPredicate(format: "self LIKE %@", $0) }
+    } else {
+        includePredicates = nil
+    }
+    
+    let excludePredicates: [NSPredicate]?
+    if let ep = entry.exclude {
+        excludePredicates = ep.map{ NSPredicate(format: "self LIKE %@", $0) }
+    } else {
+        excludePredicates = nil
+    }
+    
+    // actual work happens here
     return Deferred { () -> PassthroughSubject<FileOperation, Error> in
         let subject = PassthroughSubject<FileOperation, Error>()
         
@@ -149,14 +181,22 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
         fsDispatchQueue.async { // do it in the background to prevent the "sending results before subscriber connects" problem
             let dir = URL(fileURLWithPath: entry.dir)
             if let enumerator = FileManager.default.enumerator(
-                at: dir, includingPropertiesForKeys: [.isRegularFileKey, .contentModificationDateKey], options: [.skipsHiddenFiles]) {
-                
+                at: dir,
+                includingPropertiesForKeys: [.isRegularFileKey, .contentModificationDateKey],
+                options: [.skipsHiddenFiles])
+            {
                 for case let fileURL as URL in enumerator {
+                    let relativePath = fileURL.relativePath.replacingOccurrences(of: dir.relativePath, with: "")
+                    if !isIncluded(path: relativePath, includePredicates: includePredicates, excludePredicates: excludePredicates) {
+                        print("skipping execluded file \(relativePath)")
+                        continue
+                    }
+                    
                     do {
                         let fileAttributes = try fileURL.resourceValues(forKeys: [.isRegularFileKey, .contentModificationDateKey])
                         if fileAttributes.isRegularFile == true {
-                            // first work out where it's going to go
-                            let remotePath = entry.target + fileURL.relativePath.replacingOccurrences(of: dir.relativePath, with: "")
+                            // first work out where it's going to go under the remote target dir
+                            let remotePath = entry.target + relativePath
                             
                             // let's see if it exists in azure
                             let remoteMatch = blobs.first { blob in remotePath == blob.blobName! }
