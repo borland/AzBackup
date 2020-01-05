@@ -188,7 +188,7 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
                 for case let fileURL as URL in enumerator {
                     let relativePath = fileURL.relativePath.replacingOccurrences(of: dir.relativePath, with: "")
                     if !isIncluded(path: relativePath, includePredicates: includePredicates, excludePredicates: excludePredicates) {
-                        print("skipping execluded file \(relativePath)")
+                        //print("skipping excluded file \(relativePath)")
                         continue
                     }
                     
