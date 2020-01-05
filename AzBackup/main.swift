@@ -64,7 +64,7 @@ struct FileOperation {
 let fsDispatchQueue = DispatchQueue(label: "fsQueue")
 
 class UploadManager {
-    typealias QueuedTask = (task: AnyPublisher<Void, Error>, localFileUrl: URL)
+    typealias QueuedTask = (task: AnyPublisher<Void, Error>, fileOperation: FileOperation)
     
     private let dispatchQueue = DispatchQueue(label: "uploadQueue")
 
@@ -74,9 +74,9 @@ class UploadManager {
     
     let results = PassthroughSubject<FileOperation, Never>()
 
-    func queueUpload(task: AnyPublisher<Void, Error>, localFileUrl: URL) {
+    func queueUpload(task: AnyPublisher<Void, Error>, fileOperation: FileOperation) {
         dispatchQueue.async {
-            self.uploadQueue.append(QueuedTask(task: task, localFileUrl: localFileUrl))
+            self.uploadQueue.append(QueuedTask(task: task, fileOperation: fileOperation))
             if !self.isProcessing {
                 self.doProcessing()
             }
@@ -93,7 +93,7 @@ class UploadManager {
             
             switch signal {
             case .finished:
-                self.results.send(FileOperation(type: .created, file: task.localFileUrl))
+                self.results.send(FileOperation(type: .created, file: task.fileOperation.file))
                 
                 self.dispatchQueue.async {
                     if self.uploadQueue.isEmpty {
@@ -104,7 +104,7 @@ class UploadManager {
                     }
                 }
             case .failure(let err):
-                print("Upload failed for \(task.localFileUrl) - \(err)")
+                print("Upload failed for \(task.fileOperation.file) - \(err)")
                 // carry on with the next one
             }
         }) { () in
@@ -120,6 +120,8 @@ let forever = uploadManager.results.sink(receiveCompletion: { (signal) in
     print("\(op.type) \(op.file.relativePath)")
 })
 
+let lastModificationDateKey = "lastModificationDate"
+let dateFormatter = ISO8601DateFormatter()
 
 func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobContainer, blobs: [AZSCloudBlockBlob]) -> AnyPublisher<FileOperation, Error>
 {
@@ -128,6 +130,16 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
         return Empty<FileOperation, Error>().eraseToAnyPublisher()
     case .none, .some(true):
         break
+    }
+    
+    func queueUpload(fileOperation: FileOperation, remotePath: String, modificationDate: Date) throws {
+        guard let blob = container.blockBlobReference(fromName: remotePath) else {
+            throw BackupError(message: "Can't create blob reference from \(remotePath)")
+        }
+        blob.metadata[lastModificationDateKey] = dateFormatter.string(from: modificationDate)
+        uploadManager.queueUpload(
+            task: blob.upload(fileUrl: fileOperation.file).eraseToAnyPublisher(),
+            fileOperation: fileOperation)
     }
     
     return Deferred { () -> PassthroughSubject<FileOperation, Error> in
@@ -143,22 +155,28 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
                     do {
                         let fileAttributes = try fileURL.resourceValues(forKeys: [.isRegularFileKey, .contentModificationDateKey])
                         if fileAttributes.isRegularFile == true {
-                            // OK now the interesting part. This file exists on the disk. let's see if it exists in azure
-                            let existsInAzure = blobs.contains(where: { blob in
-                                fileURL.absoluteString.hasSuffix(blob.blobName!)
-                            })
+                            // first work out where it's going to go
+                            let remotePath = entry.target + fileURL.relativePath.replacingOccurrences(of: dir.relativePath, with: "")
                             
-                            if existsInAzure {
-                                subject.send(FileOperation(type: .alreadyUpToDate, file: fileURL))
-                            } else {
-                                // this is probably a terrible way to do this, but it works
-                                let relativePath = entry.target + fileURL.relativePath.replacingOccurrences(of: dir.relativePath, with: "")
-                                guard let blob = container.blockBlobReference(fromName: relativePath) else {
-                                    throw BackupError(message: "Can't create blob reference from \(relativePath)")
+                            // let's see if it exists in azure
+                            let remoteMatch = blobs.first { blob in remotePath == blob.blobName! }
+                            
+                            if let rm = remoteMatch, let lastModStr = rm.metadata[lastModificationDateKey] as? String {
+                                // need to compare strings because the raw contentModificationDate includes milliseconds which aren't roundtripped
+                                // via ISO8601DateFormatter with the same precision
+                                if lastModStr == dateFormatter.string(from: fileAttributes.contentModificationDate!) {
+                                    subject.send(FileOperation(type: .alreadyUpToDate, file: fileURL))
+                                } else { // file modification date mismatch. Overwrite remote file
+                                    try queueUpload(
+                                        fileOperation: FileOperation(type: .updated, file: fileURL),
+                                        remotePath: remotePath,
+                                        modificationDate: fileAttributes.contentModificationDate!)
                                 }
-                                uploadManager.queueUpload(
-                                    task: blob.upload(fileUrl: fileURL).eraseToAnyPublisher(),
-                                    localFileUrl: fileURL)
+                            } else { // new file
+                                try queueUpload(
+                                    fileOperation: FileOperation(type: .created, file: fileURL),
+                                    remotePath: remotePath,
+                                    modificationDate: fileAttributes.contentModificationDate!)
                             }
                         }
                     } catch {

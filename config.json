@@ -4,7 +4,7 @@
     "blobContainer": "my-test-container",
     "backup": [
         {
-            "enabled": false,
+            "enabled": true,
             "dir": "/Users/orione/Downloads/azure-storage-ios-0.2.6",
             "target": "azure-storage-ios-0.2.6",
             "include": ["*"],

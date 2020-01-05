@@ -47,6 +47,7 @@ extension AZSCloudBlobContainer {
     func listBlobs(batchSize: Int = 1000) -> Deferred<PassthroughSubject<[AZSCloudBlockBlob], Error>> {
         return Deferred {
             let subject = PassthroughSubject<[AZSCloudBlockBlob], Error>()
+            let blobListingDetails: AZSBlobListingDetails = [.metadata, .uncommittedBlobs]
             
             func callback(err: Error?, segment: AZSBlobResultSegment?) {
                 if let e = err {
@@ -65,7 +66,7 @@ extension AZSCloudBlobContainer {
                         with: nextCt,
                         prefix: nil,
                         useFlatBlobListing: true,
-                        blobListingDetails: [],
+                        blobListingDetails: blobListingDetails,
                         maxResults: batchSize,
                         accessCondition: nil,
                         requestOptions: nil,
@@ -83,7 +84,7 @@ extension AZSCloudBlobContainer {
                 with: AZSContinuationToken(),
                 prefix: nil,
                 useFlatBlobListing: true,
-                blobListingDetails: [],
+                blobListingDetails: blobListingDetails,
                 maxResults: batchSize,
                 accessCondition: nil,
                 requestOptions: nil,
