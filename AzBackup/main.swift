@@ -140,14 +140,7 @@ func isIncluded(path: String, includePredicates: [NSPredicate]?, excludePredicat
 }
 
 func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobContainer, blobs: [String:AZSCloudBlockBlob]) -> AnyPublisher<FileOperation, Error>
-{
-    switch entry.enabled {
-    case .some(false):
-        return Empty<FileOperation, Error>().eraseToAnyPublisher()
-    case .none, .some(true):
-        break
-    }
-    
+{    
     func queueUpload(fileOperation: FileOperation, remotePath: String, modificationDate: Date) throws {
         guard let blob = container.blockBlobReference(fromName: remotePath) else {
             throw BackupError(message: "Can't create blob reference from \(remotePath)")
@@ -236,48 +229,50 @@ var cancellable: Cancellable?
 do {
     let account = try AZSCloudStorageAccount(fromConnectionString: azureConnectionString)
     let blobClient: AZSCloudBlobClient = account.getBlobClient()
-
+    
     // we can't cancel any of this. Ctrl+C to just kill the program
     guard let container = blobClient.containerReference(fromName: config.blobContainer) else {
         throw BackupError(message: "can't get container reference for \(config.blobContainer)")
     }
     cancellable = container
         .createIfNotExists()
-        .eraseToAnyPublisher()
-        .flatMap { (container) -> AnyPublisher<(container: AZSCloudBlobContainer, blobs: [String:AZSCloudBlockBlob]), Error> in
-            // step 1: list all the files from azure and hold the info in a buffer
-            // This is not really optimal as it takes ages and requires heaps of memory but meh, works well enough
-            print("LISTING BLOBS")
-            var count = 0
-            var blobDict = [String:AZSCloudBlockBlob]()
-            return container
-                .listBlobs()
-                .flatMap { blobs -> Publishers.Sequence<[AZSCloudBlockBlob], Error> in
-                    count += blobs.count
-                    print(count)
-                    return Publishers.Sequence(sequence: blobs)
-                }
-                .reduce(blobDict, { (dict, blob) -> [String:AZSCloudBlockBlob] in
-                    blobDict[blob.blobName!] = blob // don't keep making new copies of blobDict
-                    return blobDict
-                })
-                .map { blobs in (container: container, blobs: blobs) }
+        .flatMap { (container) -> AnyPublisher<(container: AZSCloudBlobContainer, entry: ConfigBackupEntry), Error> in
+            Publishers.Sequence(sequence: config.backup)
+                .filter { entry in entry.enabled != false }
+                .map { entry in (container: container, entry: entry) }
                 .eraseToAnyPublisher()
+    }
+    .flatMap { (container, entry) -> AnyPublisher<(container: AZSCloudBlobContainer, entry: ConfigBackupEntry, blobs: [String:AZSCloudBlockBlob]), Error> in
+        // step 1: list all the files from azure and hold the info in a buffer
+        // This is not really optimal as it takes ages and requires heaps of memory but meh, works well enough
+        let prefix = entry.target.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
+        
+        var count = 0
+        var blobDict = [String:AZSCloudBlockBlob]()
+        return container
+            .listBlobs(prefix: prefix, batchSize: 3000)
+            .flatMap { blobs -> Publishers.Sequence<[AZSCloudBlockBlob], Error> in
+                count += blobs.count
+                print("\(prefix): found \(count)")
+                return Publishers.Sequence(sequence: blobs)
         }
-        .flatMap({ (container: AZSCloudBlobContainer, blobs: [String:AZSCloudBlockBlob]) -> AnyPublisher<FileOperation, Error> in
-            print("WALKING LOCAL FILESYSTEM")
-            var tasks: [AnyPublisher<FileOperation, Error>] = .init()
-            
-            for entry in config.backup {
-                tasks.append(processBackupEntry(entry, container: container, blobs: blobs))
-            }
-            return Publishers.Sequence(sequence: tasks).flatMap{ $0 }.eraseToAnyPublisher()
-        })
-        .sink(receiveCompletion: { signal in }, receiveValue: { fileOperation in
-            if fileOperation.type != .alreadyUpToDate { // just noise and slows things down
-                print("\(fileOperation.file.relativePath) -> \(String(describing: fileOperation.type))")
-            }
-        })
+        .reduce(blobDict) { (dict, blob) -> [String:AZSCloudBlockBlob] in
+            blobDict[blob.blobName!] = blob // don't keep making new copies of blobDict
+            return blobDict
+        }
+        .map { blobs in (container: container, entry: entry, blobs: blobs) }
+        .eraseToAnyPublisher()
+    }
+    .flatMap { tuple -> AnyPublisher<FileOperation, Error> in
+        let (container, entry, blobs) = tuple
+        print("WALKING LOCAL FILESYSTEM")
+        return processBackupEntry(entry, container: container, blobs: blobs)
+    }
+    .sink(receiveCompletion: { signal in }, receiveValue: { fileOperation in
+        if fileOperation.type != .alreadyUpToDate { // just noise and slows things down
+            print("\(fileOperation.file.relativePath) -> \(String(describing: fileOperation.type))")
+        }
+    })
     
     
 } catch let err {

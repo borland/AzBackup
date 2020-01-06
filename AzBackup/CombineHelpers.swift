@@ -44,7 +44,7 @@ extension AZSCloudBlobClient {
 }
 
 extension AZSCloudBlobContainer {
-    func listBlobs(batchSize: Int = 1000) -> Deferred<PassthroughSubject<[AZSCloudBlockBlob], Error>> {
+    func listBlobs(prefix: String?, batchSize: Int = 1000) -> Deferred<PassthroughSubject<[AZSCloudBlockBlob], Error>> {
         return Deferred {
             let subject = PassthroughSubject<[AZSCloudBlockBlob], Error>()
             let blobListingDetails: AZSBlobListingDetails = [.metadata, .uncommittedBlobs]
@@ -63,15 +63,15 @@ extension AZSCloudBlobContainer {
                     // fetch the next segment if there is one
                     if let nextCt = seg.continuationToken {
                         self.listBlobsSegmented(
-                        with: nextCt,
-                        prefix: nil,
-                        useFlatBlobListing: true,
-                        blobListingDetails: blobListingDetails,
-                        maxResults: batchSize,
-                        accessCondition: nil,
-                        requestOptions: nil,
-                        operationContext: nil,
-                        completionHandler: callback)
+                            with: nextCt,
+                            prefix: prefix,
+                            useFlatBlobListing: true,
+                            blobListingDetails: blobListingDetails,
+                            maxResults: batchSize,
+                            accessCondition: nil,
+                            requestOptions: nil,
+                            operationContext: nil,
+                            completionHandler: callback)
                     } else {
                         subject.send(completion: .finished)
                     }
@@ -82,7 +82,7 @@ extension AZSCloudBlobContainer {
             }
             self.listBlobsSegmented(
                 with: AZSContinuationToken(),
-                prefix: nil,
+                prefix: prefix,
                 useFlatBlobListing: true,
                 blobListingDetails: blobListingDetails,
                 maxResults: batchSize,

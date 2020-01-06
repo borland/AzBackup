@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>AzBackup-Release.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>1</integer>
+		</dict>
 		<key>AzBackup.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
