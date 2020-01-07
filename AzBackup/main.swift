@@ -64,53 +64,63 @@ struct FileOperation {
 let fsDispatchQueue = DispatchQueue(label: "fsQueue")
 
 class UploadManager {
+    let concurrentUploads = 3
+    
     typealias QueuedTask = (task: AnyPublisher<Void, Error>, fileOperation: FileOperation)
     
     private let dispatchQueue = DispatchQueue(label: "uploadQueue")
 
     private var uploadQueue: [QueuedTask] = []
-    private var isProcessing = false
-    private var currentTask: Cancellable?
+    private var currentTasks: [Int:Cancellable] = [:]
+    private var lastTaskId = 0 // each task needs some way to remove it from the dict when it's done
     
     let results = PassthroughSubject<FileOperation, Never>()
 
     func queueUpload(task: AnyPublisher<Void, Error>, fileOperation: FileOperation) {
         dispatchQueue.async {
             self.uploadQueue.append(QueuedTask(task: task, fileOperation: fileOperation))
-            if !self.isProcessing {
-                self.doProcessing()
-            }
+            self.doProcessing()
         }
     }
     
     private func doProcessing() {
-        assert(!uploadQueue.isEmpty) // shouldn't happen
-        isProcessing = true
+        dispatchPrecondition(condition: .onQueue(self.dispatchQueue))
         
-        let task = uploadQueue.remove(at: 0)
-        self.currentTask = task.task.sink(receiveCompletion: { (signal) in
-            self.currentTask = nil
+        // the worst thing that happens if we call doProcessing excessively is that
+        // this loop runs zero times
+        while uploadQueue.count > 0 && currentTasks.count < concurrentUploads {
+            let task = uploadQueue.remove(at: 0)
             
-            switch signal {
-            case .finished:
-                self.results.send(task.fileOperation)
+            lastTaskId += 1
+            let taskId = lastTaskId
+            
+//            print("starting \(task.fileOperation.type) for \(task.fileOperation.file.relativePath)")
+            let cancellable = task.task.sink(receiveCompletion: { (signal) in
+                self.currentTasks.removeValue(forKey: taskId)
                 
-                self.dispatchQueue.async {
-                    if self.uploadQueue.isEmpty {
-                        self.isProcessing = false // all done, stop now
-                        print("Queue empty")
-                    } else {
-                        self.doProcessing()
+                switch signal {
+                case .finished:
+                    self.results.send(task.fileOperation)
+                    
+                    self.dispatchQueue.async {
+                        if self.uploadQueue.isEmpty {
+                            print("Queue empty")
+                        } else {
+                            self.doProcessing()
+                        }
                     }
+                case .failure(let err):
+                    print("Upload failed for \(task.fileOperation.file) - \(err)")
+                    // carry on with the next one
                 }
-            case .failure(let err):
-                print("Upload failed for \(task.fileOperation.file) - \(err)")
-                // carry on with the next one
+            }) { () in
+                // useless. Progress might go here?
             }
-        }) { () in
-            // useless. Progress might go here?
+            
+            // we need to stash the cancellable somewhere as Combine kills it if it goes out of scope
+            currentTasks[taskId] = cancellable
         }
-        
+            
     }
 }
 let uploadManager = UploadManager()
