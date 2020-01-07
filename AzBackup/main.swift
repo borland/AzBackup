@@ -93,7 +93,7 @@ class UploadManager {
             
             switch signal {
             case .finished:
-                self.results.send(FileOperation(type: .created, file: task.fileOperation.file))
+                self.results.send(task.fileOperation)
                 
                 self.dispatchQueue.async {
                     if self.uploadQueue.isEmpty {
@@ -172,6 +172,8 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
         
         // probably some sort of subscriber demand thing is appropriate for Combine
         fsDispatchQueue.async { // do it in the background to prevent the "sending results before subscriber connects" problem
+            print("Scanning filesystem under \(entry.dir)")
+            
             let dir = URL(fileURLWithPath: entry.dir)
             if let enumerator = FileManager.default.enumerator(
                 at: dir,
@@ -250,7 +252,7 @@ do {
         var count = 0
         var blobDict = [String:AZSCloudBlockBlob]()
         return container
-            .listBlobs(prefix: prefix, batchSize: 3000)
+            .listBlobs(prefix: prefix, batchSize: 1000)
             .flatMap { blobs -> Publishers.Sequence<[AZSCloudBlockBlob], Error> in
                 count += blobs.count
                 print("\(prefix): found \(count)")
@@ -263,10 +265,8 @@ do {
         .map { blobs in (container: container, entry: entry, blobs: blobs) }
         .eraseToAnyPublisher()
     }
-    .flatMap { tuple -> AnyPublisher<FileOperation, Error> in
-        let (container, entry, blobs) = tuple
-        print("WALKING LOCAL FILESYSTEM")
-        return processBackupEntry(entry, container: container, blobs: blobs)
+    .flatMap { arg -> AnyPublisher<FileOperation, Error> in
+        processBackupEntry(arg.entry, container: arg.container, blobs: arg.blobs)
     }
     .sink(receiveCompletion: { signal in }, receiveValue: { fileOperation in
         if fileOperation.type != .alreadyUpToDate { // just noise and slows things down
