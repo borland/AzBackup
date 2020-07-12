@@ -260,7 +260,13 @@ do {
         let prefix = entry.target.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
         
         var count = 0
-        var blobDict = [String:AZSCloudBlockBlob]()
+        class DictWrapper { // deliberately box the dictionary to prevent copying during accumulation
+            var blobs = [String:AZSCloudBlockBlob]()
+            func add(_ name: String, _ blob: AZSCloudBlockBlob) {
+                blobs[name] = blob
+            }
+        }
+        let blobDict = DictWrapper()
         return container
             .listBlobs(prefix: prefix, batchSize: 1000)
             .flatMap { blobs -> Publishers.Sequence<[AZSCloudBlockBlob], Error> in
@@ -268,11 +274,11 @@ do {
                 print("\(prefix): found \(count)")
                 return Publishers.Sequence(sequence: blobs)
         }
-        .reduce(blobDict) { (dict, blob) -> [String:AZSCloudBlockBlob] in
-            blobDict[blob.blobName!] = blob // don't keep making new copies of blobDict
+        .reduce(blobDict) { (dict, blob) -> DictWrapper in
+            blobDict.add(blob.blobName!, blob)
             return blobDict
         }
-        .map { blobs in (container: container, entry: entry, blobs: blobs) }
+        .map { blobs in (container: container, entry: entry, blobs: blobs.blobs) }
         .eraseToAnyPublisher()
     }
     .flatMap { arg -> AnyPublisher<FileOperation, Error> in
