@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import Combine
+import RxSwift
 
 print("Hello, World!")
 
@@ -66,17 +66,17 @@ let fsDispatchQueue = DispatchQueue(label: "fsQueue")
 class UploadManager {
     let concurrentUploads = 3
     
-    typealias QueuedTask = (task: AnyPublisher<Void, Error>, fileOperation: FileOperation)
+    typealias QueuedTask = (task: Observable<Void>, fileOperation: FileOperation)
     
     private let dispatchQueue = DispatchQueue(label: "uploadQueue")
 
     private var uploadQueue: [QueuedTask] = []
-    private var currentTasks: [Int:Cancellable] = [:]
+    private var currentTasks: [Int:Disposable] = [:]
     private var lastTaskId = 0 // each task needs some way to remove it from the dict when it's done
     
-    let results = PassthroughSubject<FileOperation, Never>()
+    let results = PublishSubject<FileOperation>()
 
-    func queueUpload(task: AnyPublisher<Void, Error>, fileOperation: FileOperation) {
+    func queueUpload(task: Observable<Void>, fileOperation: FileOperation) {
         dispatchQueue.async {
             self.uploadQueue.append(QueuedTask(task: task, fileOperation: fileOperation))
             self.doProcessing()
@@ -95,12 +95,15 @@ class UploadManager {
             let taskId = lastTaskId
             
 //            print("starting \(task.fileOperation.type) for \(task.fileOperation.file.relativePath)")
-            let cancellable = task.task.sink(receiveCompletion: { (signal) in
-                self.currentTasks.removeValue(forKey: taskId)
+            let cancellable = task.task.subscribe(
+                onError: { err in
+                    print("Upload failed for \(task.fileOperation.file) - \(err)")
+                    // carry on with the next one
+                },
+                onCompleted: {
+                    self.currentTasks.removeValue(forKey: taskId)
                 
-                switch signal {
-                case .finished:
-                    self.results.send(task.fileOperation)
+                    self.results.onNext(task.fileOperation)
                     
                     self.dispatchQueue.async {
                         if self.uploadQueue.isEmpty {
@@ -109,13 +112,7 @@ class UploadManager {
                             self.doProcessing()
                         }
                     }
-                case .failure(let err):
-                    print("Upload failed for \(task.fileOperation.file) - \(err)")
-                    // carry on with the next one
-                }
-            }) { () in
-                // useless. Progress might go here?
-            }
+                })
             
             // we need to stash the cancellable somewhere as Combine kills it if it goes out of scope
             currentTasks[taskId] = cancellable
@@ -124,9 +121,7 @@ class UploadManager {
     }
 }
 let uploadManager = UploadManager()
-let forever = uploadManager.results.sink(receiveCompletion: { (signal) in
-    
-}, receiveValue: { op in
+let forever = uploadManager.results.subscribe(onNext: { op in
     print("\(op.type) \(op.file.relativePath)")
 })
 
@@ -149,7 +144,7 @@ func isIncluded(path: String, includePredicates: [NSPredicate]?, excludePredicat
     return included && !excluded // exclude wins
 }
 
-func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobContainer, blobs: [String:AZSCloudBlockBlob]) -> AnyPublisher<FileOperation, Error>
+func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobContainer, blobs: [String:AZSCloudBlockBlob]) -> Observable<FileOperation>
 {    
     func queueUpload(fileOperation: FileOperation, remotePath: String, modificationDate: Date) throws {
         guard let blob = container.blockBlobReference(fromName: remotePath) else {
@@ -157,7 +152,7 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
         }
         blob.metadata[lastModificationDateKey] = dateFormatter.string(from: modificationDate)
         uploadManager.queueUpload(
-            task: blob.upload(fileUrl: fileOperation.file).eraseToAnyPublisher(),
+            task: blob.upload(fileUrl: fileOperation.file),
             fileOperation: fileOperation)
     }
     
@@ -177,10 +172,9 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
     }
     
     // actual work happens here
-    return Deferred { () -> PassthroughSubject<FileOperation, Error> in
-        let subject = PassthroughSubject<FileOperation, Error>()
-        
+    return Observable.create { (observer: AnyObserver<FileOperation>) -> Disposable in
         // probably some sort of subscriber demand thing is appropriate for Combine
+        let disposable = BooleanDisposable()
         fsDispatchQueue.async { // do it in the background to prevent the "sending results before subscriber connects" problem
             print("Scanning filesystem under \(entry.dir)")
             
@@ -191,6 +185,10 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
                 options: [.skipsHiddenFiles])
             {
                 for case let fileURL as URL in enumerator {
+                    if disposable.isDisposed {
+                        return // give up when cancelled
+                    }
+                    
                     let relativePath = fileURL.relativePath.replacingOccurrences(of: dir.relativePath, with: "")
                     if !isIncluded(path: relativePath, includePredicates: includePredicates, excludePredicates: excludePredicates) {
                         //print("skipping excluded file \(relativePath)")
@@ -210,7 +208,7 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
                                 // need to compare strings because the raw contentModificationDate includes milliseconds which aren't roundtripped
                                 // via ISO8601DateFormatter with the same precision
                                 if lastModStr == dateFormatter.string(from: fileAttributes.contentModificationDate!) {
-                                    subject.send(FileOperation(type: .alreadyUpToDate, file: fileURL))
+                                    observer.onNext(FileOperation(type: .alreadyUpToDate, file: fileURL))
                                 } else { // file modification date mismatch. Overwrite remote file
                                     try queueUpload(
                                         fileOperation: FileOperation(type: .updated, file: fileURL),
@@ -225,18 +223,18 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
                             }
                         }
                     } catch {
-                        subject.send(completion: .failure(error))
+                        observer.onError(error)
                         return
                     }
                 }
-                subject.send(completion: .finished)
+                observer.onCompleted()
             }
         }
-        return subject
-    }.eraseToAnyPublisher()
+        return disposable
+    }
 }
 
-var cancellable: Cancellable?
+var disposable: Disposable?
 
 do {
     let account = try AZSCloudStorageAccount(fromConnectionString: azureConnectionString)
@@ -246,15 +244,14 @@ do {
     guard let container = blobClient.containerReference(fromName: config.blobContainer) else {
         throw BackupError(message: "can't get container reference for \(config.blobContainer)")
     }
-    cancellable = container
+    disposable = container
         .createIfNotExists()
-        .flatMap { (container) -> AnyPublisher<(container: AZSCloudBlobContainer, entry: ConfigBackupEntry), Error> in
-            Publishers.Sequence(sequence: config.backup)
+        .flatMap { (container) -> Observable<(container: AZSCloudBlobContainer, entry: ConfigBackupEntry)> in
+            Observable.from(config.backup)
                 .filter { entry in entry.enabled != false }
                 .map { entry in (container: container, entry: entry) }
-                .eraseToAnyPublisher()
     }
-    .flatMap { (container, entry) -> AnyPublisher<(container: AZSCloudBlobContainer, entry: ConfigBackupEntry, blobs: [String:AZSCloudBlockBlob]), Error> in
+    .flatMap { (container, entry) -> Observable<(container: AZSCloudBlobContainer, entry: ConfigBackupEntry, blobs: [String:AZSCloudBlockBlob])> in
         // step 1: list all the files from azure and hold the info in a buffer
         // This is not really optimal as it takes ages and requires heaps of memory but meh, works well enough
         let prefix = entry.target.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)!
@@ -269,22 +266,21 @@ do {
         let blobDict = DictWrapper()
         return container
             .listBlobs(prefix: prefix, batchSize: 1000)
-            .flatMap { blobs -> Publishers.Sequence<[AZSCloudBlockBlob], Error> in
+            .flatMap { blobs -> Observable<AZSCloudBlockBlob> in
                 count += blobs.count
                 print("\(prefix): found \(count)")
-                return Publishers.Sequence(sequence: blobs)
+                return Observable.from(blobs)
         }
         .reduce(blobDict) { (dict, blob) -> DictWrapper in
             blobDict.add(blob.blobName!, blob)
             return blobDict
         }
         .map { blobs in (container: container, entry: entry, blobs: blobs.blobs) }
-        .eraseToAnyPublisher()
     }
-    .flatMap { arg -> AnyPublisher<FileOperation, Error> in
+    .flatMap { arg -> Observable<FileOperation> in
         processBackupEntry(arg.entry, container: arg.container, blobs: arg.blobs)
     }
-    .sink(receiveCompletion: { signal in }, receiveValue: { fileOperation in
+    .subscribe(onNext: { fileOperation in
         if fileOperation.type != .alreadyUpToDate { // just noise and slows things down
             print("\(fileOperation.file.relativePath) -> \(String(describing: fileOperation.type))")
         }

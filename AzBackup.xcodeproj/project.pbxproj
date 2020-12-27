@@ -8,9 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		D336D9D423B982AD00E3CFD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D336D9D323B982AD00E3CFD2 /* main.swift */; };
+		D3B423E02598151700B402EE /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3B423DF2598151700B402EE /* RxSwift.framework */; };
+		D3B423E12598151700B402EE /* RxSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D3B423DF2598151700B402EE /* RxSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D3B423E42598154500B402EE /* AsyncHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B423E32598154500B402EE /* AsyncHelpers.swift */; };
 		D3E9339123BD67C00083534D /* libAZSClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3E9339023BD67C00083534D /* libAZSClient.a */; };
 		D3E9339523BD6E570083534D /* libxml2.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D3E9339423BD6E570083534D /* libxml2.2.tbd */; };
-		D3E9339723BD74840083534D /* CombineHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E9339623BD74840083534D /* CombineHelpers.swift */; };
 		D3E9339A23C00D7F0083534D /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E9339923C00D7F0083534D /* Config.swift */; };
 /* End PBXBuildFile section */
 
@@ -24,16 +26,28 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
+		D3B423E22598151700B402EE /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D3B423E12598151700B402EE /* RxSwift.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		D336D9D023B982AD00E3CFD2 /* AzBackup */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = AzBackup; sourceTree = BUILT_PRODUCTS_DIR; };
 		D336D9D323B982AD00E3CFD2 /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		D34643F823BD658600EA3CCC /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
+		D3B423DF2598151700B402EE /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = external/RxSwift.framework; sourceTree = "<group>"; };
+		D3B423E32598154500B402EE /* AsyncHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncHelpers.swift; sourceTree = "<group>"; };
 		D3E9339023BD67C00083534D /* libAZSClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAZSClient.a; path = external/AZSClient.framework/libAZSClient.a; sourceTree = "<group>"; };
 		D3E9339223BD6E360083534D /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		D3E9339423BD6E570083534D /* libxml2.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.2.tbd; path = usr/lib/libxml2.2.tbd; sourceTree = SDKROOT; };
-		D3E9339623BD74840083534D /* CombineHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CombineHelpers.swift; sourceTree = "<group>"; };
 		D3E9339823C00C260083534D /* config.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = config.json; sourceTree = SOURCE_ROOT; };
 		D3E9339923C00D7F0083534D /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -45,6 +59,7 @@
 			files = (
 				D3E9339523BD6E570083534D /* libxml2.2.tbd in Frameworks */,
 				D3E9339123BD67C00083534D /* libAZSClient.a in Frameworks */,
+				D3B423E02598151700B402EE /* RxSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -74,7 +89,7 @@
 				D3E9339823C00C260083534D /* config.json */,
 				D336D9D323B982AD00E3CFD2 /* main.swift */,
 				D34643F823BD658600EA3CCC /* Bridging-Header.h */,
-				D3E9339623BD74840083534D /* CombineHelpers.swift */,
+				D3B423E32598154500B402EE /* AsyncHelpers.swift */,
 				D3E9339923C00D7F0083534D /* Config.swift */,
 			);
 			path = AzBackup;
@@ -83,6 +98,7 @@
 		D34643F923BD668E00EA3CCC /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D3B423DF2598151700B402EE /* RxSwift.framework */,
 				D3E9339423BD6E570083534D /* libxml2.2.tbd */,
 				D3E9339223BD6E360083534D /* libxml2.tbd */,
 				D3E9339023BD67C00083534D /* libAZSClient.a */,
@@ -100,6 +116,7 @@
 				D336D9CC23B982AD00E3CFD2 /* Sources */,
 				D336D9CD23B982AD00E3CFD2 /* Frameworks */,
 				D336D9CE23B982AD00E3CFD2 /* CopyFiles */,
+				D3B423E22598151700B402EE /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -148,8 +165,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D3B423E42598154500B402EE /* AsyncHelpers.swift in Sources */,
 				D336D9D423B982AD00E3CFD2 /* main.swift in Sources */,
-				D3E9339723BD74840083534D /* CombineHelpers.swift in Sources */,
 				D3E9339A23C00D7F0083534D /* Config.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -273,9 +290,9 @@
 		D336D9D823B982AD00E3CFD2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 27PRAM6SD4;
+				DEVELOPMENT_TEAM = ZWD8A654M8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -286,6 +303,8 @@
 					"\"$(SRCROOT)/external/AZSClient\"",
 					"$(PROJECT_DIR)/external/AZSClient.framework",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_BUNDLE_IDENTIFIER = com.orionedwards.azbackup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "AzBackup/Bridging-Header.h";
@@ -296,9 +315,9 @@
 		D336D9D923B982AD00E3CFD2 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 27PRAM6SD4;
+				DEVELOPMENT_TEAM = ZWD8A654M8;
 				ENABLE_HARDENED_RUNTIME = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -309,6 +328,8 @@
 					"\"$(SRCROOT)/external/AZSClient\"",
 					"$(PROJECT_DIR)/external/AZSClient.framework",
 				);
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
+				PRODUCT_BUNDLE_IDENTIFIER = com.orionedwards.azbackup;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "AzBackup/Bridging-Header.h";

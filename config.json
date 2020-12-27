@@ -5,10 +5,10 @@
     "backup": [
         {
             "enabled": true,
-            "dir": "/Users/orione/Downloads/azure-storage-ios-0.2.6",
-            "target": "azure-storage-ios-0.2.6",
+            "dir": "/Users/orione/Downloads/javadoc-15.1.032",
+            "target": "javadoc-15.1.032",
             "include": ["*"],
-            "exclude": ["/Lib/Azure Storage Client Library/BreakingChanges.txt"]
+            "exclude": []
         },
         {
             "enabled": true,
@@ -16,8 +16,7 @@
             "target": "Documents",
             "include": ["*"],
             "exclude": [
-                "*.p8",
-                "*.pptx"
+                "*.p8"
             ]
         }
     ]
