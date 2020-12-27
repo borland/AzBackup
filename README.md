@@ -1,7 +1,7 @@
 # AzBackup
 This is a macOS Utility to backup files to Azure Blob storage.
 
-I wrote it in about 5 hours, and half of that was figuring out how to get Combine to do what I wanted to and compiling the Azure iOS Storage SDK for macOS and modern Xcode correctly.
+I originally wrote it to play with Combine and the Azure Storage SDK.
 
 My main motivation was that I hit the 200gb limit on the free version of CloudBerry Backup, which is what I was using previously. A sensible person (or a company with discretionary budget) would simply pay the $50 USD for the pro version, however this kind of thing is a bit of fun and I can save $50. You should probably use CloudBerry Backup instead of this as well :-)
 
@@ -13,5 +13,12 @@ Modification time is stored in azure blob storage metadata so we'd need to have 
 
 I expect I'd write that code if I ever needed to do a restore.
 
-## Future considerations:
-Uploading one file at a time is quite slow. Perhaps we could do N concurrent uploads or something
+## Notes
+Initially it only supported a single upload at a time, however it now runs up to 3 uploads concurrently (UploadManager.concurrentUploads = 3) because otherwise it's really really slow. 
+There seems to be quite a bit of handshaking/overhead involved in uploading a single file to azure so if you have lots of small files, it doesn't come anywhere near close to saturating
+the network connection of my 20mbit fibre upload at this time. Concurrent uploads helps a lot.
+
+## Known Issues
+This uses the azure storage sdk's uploadBlob function, to upload a single file at a time; it does not handle partial uploads or resume partially-uploaded files.
+This sometimes then encounters request timeouts when uploading very large files.
+Most likely workaround would be to have fewer concurrent uploads, or to increase the timeout.
