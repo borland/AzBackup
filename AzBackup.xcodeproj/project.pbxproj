@@ -8,9 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		D336D9D423B982AD00E3CFD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D336D9D323B982AD00E3CFD2 /* main.swift */; };
-		D3B423E02598151700B402EE /* RxSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3B423DF2598151700B402EE /* RxSwift.framework */; };
-		D3B423E12598151700B402EE /* RxSwift.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D3B423DF2598151700B402EE /* RxSwift.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D3B423E42598154500B402EE /* AsyncHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B423E32598154500B402EE /* AsyncHelpers.swift */; };
+		D3B423E725981F5F00B402EE /* MiniRxSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B423E625981F5F00B402EE /* MiniRxSwift.swift */; };
 		D3E9339123BD67C00083534D /* libAZSClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3E9339023BD67C00083534D /* libAZSClient.a */; };
 		D3E9339523BD6E570083534D /* libxml2.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D3E9339423BD6E570083534D /* libxml2.2.tbd */; };
 		D3E9339A23C00D7F0083534D /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3E9339923C00D7F0083534D /* Config.swift */; };
@@ -26,17 +25,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
-		D3B423E22598151700B402EE /* Embed Frameworks */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				D3B423E12598151700B402EE /* RxSwift.framework in Embed Frameworks */,
-			);
-			name = "Embed Frameworks";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -45,6 +33,7 @@
 		D34643F823BD658600EA3CCC /* Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
 		D3B423DF2598151700B402EE /* RxSwift.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = RxSwift.framework; path = external/RxSwift.framework; sourceTree = "<group>"; };
 		D3B423E32598154500B402EE /* AsyncHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncHelpers.swift; sourceTree = "<group>"; };
+		D3B423E625981F5F00B402EE /* MiniRxSwift.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MiniRxSwift.swift; sourceTree = "<group>"; };
 		D3E9339023BD67C00083534D /* libAZSClient.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libAZSClient.a; path = external/AZSClient.framework/libAZSClient.a; sourceTree = "<group>"; };
 		D3E9339223BD6E360083534D /* libxml2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.tbd; path = usr/lib/libxml2.tbd; sourceTree = SDKROOT; };
 		D3E9339423BD6E570083534D /* libxml2.2.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libxml2.2.tbd; path = usr/lib/libxml2.2.tbd; sourceTree = SDKROOT; };
@@ -59,7 +48,6 @@
 			files = (
 				D3E9339523BD6E570083534D /* libxml2.2.tbd in Frameworks */,
 				D3E9339123BD67C00083534D /* libAZSClient.a in Frameworks */,
-				D3B423E02598151700B402EE /* RxSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,6 +74,7 @@
 		D336D9D223B982AD00E3CFD2 /* AzBackup */ = {
 			isa = PBXGroup;
 			children = (
+				D3B423E625981F5F00B402EE /* MiniRxSwift.swift */,
 				D3E9339823C00C260083534D /* config.json */,
 				D336D9D323B982AD00E3CFD2 /* main.swift */,
 				D34643F823BD658600EA3CCC /* Bridging-Header.h */,
@@ -116,7 +105,6 @@
 				D336D9CC23B982AD00E3CFD2 /* Sources */,
 				D336D9CD23B982AD00E3CFD2 /* Frameworks */,
 				D336D9CE23B982AD00E3CFD2 /* CopyFiles */,
-				D3B423E22598151700B402EE /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -165,6 +153,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D3B423E725981F5F00B402EE /* MiniRxSwift.swift in Sources */,
 				D3B423E42598154500B402EE /* AsyncHelpers.swift in Sources */,
 				D336D9D423B982AD00E3CFD2 /* main.swift in Sources */,
 				D3E9339A23C00D7F0083534D /* Config.swift in Sources */,
