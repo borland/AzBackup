@@ -3,11 +3,11 @@
     "pins": [
       {
         "package": "MiniRxSwift",
-        "repositoryURL": "/Users/orione/Dev/MiniRxSwift/",
+        "repositoryURL": "https://github.com/borland/MiniRxSwift.git",
         "state": {
-          "branch": null,
-          "revision": "6dd446574487dfe0e4eb5675a7cc09f090eea237",
-          "version": "0.0.4"
+          "branch": "main",
+          "revision": "9488d64cc7fd913287d2907ae0c4b71b68ef8788",
+          "version": null
         }
       }
     ]

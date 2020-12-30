@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D336D9D423B982AD00E3CFD2 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = D336D9D323B982AD00E3CFD2 /* main.swift */; };
-		D3998A09259C0B65008E95B1 /* MiniRxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D3998A08259C0B65008E95B1 /* MiniRxSwift */; };
+		D3998A21259C1223008E95B1 /* MiniRxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = D3998A20259C1223008E95B1 /* MiniRxSwift */; };
 		D3B423E42598154500B402EE /* AsyncHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3B423E32598154500B402EE /* AsyncHelpers.swift */; };
 		D3E9339123BD67C00083534D /* libAZSClient.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3E9339023BD67C00083534D /* libAZSClient.a */; };
 		D3E9339523BD6E570083534D /* libxml2.2.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = D3E9339423BD6E570083534D /* libxml2.2.tbd */; };
@@ -44,7 +44,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D3998A09259C0B65008E95B1 /* MiniRxSwift in Frameworks */,
+				D3998A21259C1223008E95B1 /* MiniRxSwift in Frameworks */,
 				D3E9339523BD6E570083534D /* libxml2.2.tbd in Frameworks */,
 				D3E9339123BD67C00083534D /* libAZSClient.a in Frameworks */,
 			);
@@ -109,7 +109,7 @@
 			);
 			name = AzBackup;
 			packageProductDependencies = (
-				D3998A08259C0B65008E95B1 /* MiniRxSwift */,
+				D3998A20259C1223008E95B1 /* MiniRxSwift */,
 			);
 			productName = AzBackup;
 			productReference = D336D9D023B982AD00E3CFD2 /* AzBackup */;
@@ -140,7 +140,7 @@
 			);
 			mainGroup = D336D9C723B982AD00E3CFD2;
 			packageReferences = (
-				D3998A07259C0B65008E95B1 /* XCRemoteSwiftPackageReference "MiniRxSwift" */,
+				D3998A1F259C1223008E95B1 /* XCRemoteSwiftPackageReference "MiniRxSwift" */,
 			);
 			productRefGroup = D336D9D123B982AD00E3CFD2 /* Products */;
 			projectDirPath = "";
@@ -352,20 +352,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		D3998A07259C0B65008E95B1 /* XCRemoteSwiftPackageReference "MiniRxSwift" */ = {
+		D3998A1F259C1223008E95B1 /* XCRemoteSwiftPackageReference "MiniRxSwift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "file:///Users/orione/Dev/MiniRxSwift/";
+			repositoryURL = "https://github.com/borland/MiniRxSwift.git";
 			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.0.3;
+				branch = main;
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		D3998A08259C0B65008E95B1 /* MiniRxSwift */ = {
+		D3998A20259C1223008E95B1 /* MiniRxSwift */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D3998A07259C0B65008E95B1 /* XCRemoteSwiftPackageReference "MiniRxSwift" */;
+			package = D3998A1F259C1223008E95B1 /* XCRemoteSwiftPackageReference "MiniRxSwift" */;
 			productName = MiniRxSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
