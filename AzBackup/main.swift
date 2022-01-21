@@ -64,7 +64,7 @@ struct FileOperation {
 let fsDispatchQueue = DispatchQueue(label: "fsQueue")
 
 class UploadManager {
-    let concurrentUploads = 3
+    let concurrentUploads = 4
     
     typealias QueuedTask = (task: Observable<Void>, fileOperation: FileOperation)
     
@@ -101,7 +101,9 @@ class UploadManager {
                     // carry on with the next one
                 },
                 onCompleted: {
-                    self.currentTasks.removeValue(forKey: taskId)
+                    _ = self.dispatchQueue.sync {
+                        self.currentTasks.removeValue(forKey: taskId)
+                    }
                 
                     self.results.onNext(task.fileOperation)
                     
