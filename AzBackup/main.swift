@@ -211,7 +211,7 @@ func processBackupEntry(_ entry: ConfigBackupEntry, container: AZSCloudBlobConta
                                 // via ISO8601DateFormatter with the same precision
                                 if lastModStr == dateFormatter.string(from: fileAttributes.contentModificationDate!) {
                                     observer.onNext(FileOperation(type: .alreadyUpToDate, file: fileURL))
-                                } else { // file modification date mismatch. Overwrite remote file
+                                } else { // file size or modification date mismatch. Overwrite remote file
                                     try queueUpload(
                                         fileOperation: FileOperation(type: .updated, file: fileURL),
                                         remotePath: remotePath,
@@ -267,7 +267,7 @@ do {
         }
         let blobDict = DictWrapper()
         return container
-            .listBlobs(prefix: prefix, batchSize: 1000)
+            .listBlobs(prefix: prefix, batchSize: 2500)
             .flatMap { blobs -> Observable<AZSCloudBlockBlob> in
                 count += blobs.count
                 print("\(prefix): found \(count)")
